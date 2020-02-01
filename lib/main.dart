@@ -1,8 +1,10 @@
 // Copyright 2018 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:english_words/english_words.dart';
 
 void main() => runApp(MyApp());
@@ -22,10 +24,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
 class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18.0);
   final Set<WordPair> _saved = Set<WordPair>();
+  final Future<Project> projects;
+
+
+  @override
+  void initState() {
+    super.initState();
+    projects = fetchProjects();
+  }
 
   Widget _buildSuggestions() {
     return ListView.builder(
@@ -113,4 +125,33 @@ class RandomWordsState extends State<RandomWords> {
 class RandomWords extends StatefulWidget {
   @override
   RandomWordsState createState() => RandomWordsState();
+}
+
+Future<Project> fetchProjects() async {
+  final response = await http.get('localhost:5000/hi');
+  if (response.statusCode == 200) {
+    return Project.fromJson(json.decode(response.body))
+  } else {
+    throw Exception('server failure')
+  }
+}
+
+class Project {
+  final String name;
+  final bool done;
+  final bool funded;
+  final String description; 
+  final int id;
+  
+  Project ({this.name, this.id, this.done, this.funded, this.description});
+
+  factory Project.fromJson(Map<String, dynamic> json) {
+    return Project(
+      description: json['description'],
+      id: json['id'],
+      name: json['name'],
+      done: json['done'],
+      funded: json['funded']
+    );
+  }
 }
