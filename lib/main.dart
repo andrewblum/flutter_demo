@@ -130,7 +130,7 @@ class RandomWords extends StatefulWidget {
 Future<Project> fetchProjects() async {
   final response = await http.get('localhost:5000/hi');
   if (response.statusCode == 200) {
-    return Project.fromJson(json.decode(response.body))
+    return Project.fromJson(json.decode(response.body));
   } else {
     throw Exception('server failure')
   }
